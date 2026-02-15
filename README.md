@@ -88,7 +88,7 @@ This project uses NextJS's app router, each folder inside app folder represents 
 6. Created supabase server client and supabase browser client functions, which will be utilized on pages.tsx files for our routes, for various supabase tasks, such as updating DB, subscribing to DB changes, checking if user is logged in or not.
 7. Finally used client to create logic for user sign in, db update, realtime subscription.
 
-After completing all this I had a functional web app. After tweaking the styling and some of the app's functionalities, project was ready for deployment.
+After completing all this and styling the app, I had a functional web app ready for deployement
 
 ## What Problems I Faced?
 
