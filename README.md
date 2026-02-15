@@ -12,12 +12,6 @@ A simple web app to store and manage your bookmarks
 
 ## Installation
 
-### Prerequisites
-
-- Node.js 18+ and npm/yarn installed
-- A Supabase account
-- GCP OAuth credentials (Client ID and Secret)
-
 ### Local Development
 
 1. **Clone the repository**
@@ -37,8 +31,8 @@ A simple web app to store and manage your bookmarks
    Create a `.env.local` file in the root directory:
 
    ```
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SUPABASE_URL=<supabase_project_url>
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase_anon_key>
    ```
 
 4. **Configure Supabase**
@@ -91,5 +85,6 @@ After completing all this and styling the app, I had a functional web app ready 
 ## What Problems I Faced?
 
 1. Since, It was the first time for me using supabase for auth, there was a small learning curve to understanding what supabase was and how could I use it for my project, here I used supabase documentation and Gemini to help me understand realtime and authentication features, Gemini helped me how to set it up and gave me code snippets as well for the same.
-2. While testing realtime updates for database, I noticed that insertion operation updates were correctly being received across tabs, but it wasn't the same for deletion, after researching a bit I understood that I had to change the replica identity for my DB, basically to store the entire information about the deleted row in logs, so that supabase could use this information to send the deleted row to active user sessions, which could then be used in removing the row from UI
-3. There was also an issue of styling, since I use either CSS modules or MUI, using tailwind was new to me, given the time constraint I preferred using CoPilot to style this app according to simple white-blue theme, CoPilot did the job in matter of minutes and after tweaking the styling my project was ready aesthetically.
+2. The hardest problem I faced was that when we added a bookmark on mobile device it was displayed on laptop but not on mobile, the issue was that on mobile, the browser was connecting to the WebSocket as an anonymous user before the authentication session had fully loaded, as a result our user was subscribed as a guest user to supabase, and according to RLS, guest users should not recieve any updates, I solved this issue, by forcing the app to wait for a valid session token before subscribing.
+3. While testing realtime updates for database, I noticed that insertion operation updates were correctly being received across tabs, but it wasn't the same for deletion, after researching a bit I understood that I had to change the replica identity for my DB, basically to store the entire information about the deleted row in logs, so that supabase could use this information to send the deleted row to active user sessions, which could then be used in removing the row from UI
+4. There was also an issue of styling, since I use either CSS modules or MUI, using tailwind was new to me, given the time constraint I preferred using CoPilot to style this app according to simple white-blue theme, CoPilot did the job in matter of minutes and after tweaking the styling my project was ready aesthetically.
