@@ -40,7 +40,15 @@ export default function BookmarkList({
           }
         },
       )
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          const { data } = await supabase
+            .from("bookmarks")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (data) setBookmarks(data);
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
