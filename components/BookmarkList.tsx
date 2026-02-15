@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import {
   RealtimePostgresChangesPayload,
   REALTIME_SUBSCRIBE_STATES,
+  RealtimeChannel,
 } from "@supabase/supabase-js";
 
 type Bookmark = {
@@ -25,45 +26,60 @@ export default function BookmarkList({
   const supabase = createClient();
 
   useEffect(() => {
-    console.log("here");
-    const channel = supabase
-      .channel("schema-db-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "bookmarks",
-          filter: `user_id=eq.${userId}`,
-        },
-        (
-          payload: RealtimePostgresChangesPayload<{
-            id: string;
-            title: string;
-            url: string;
-            user_id: string;
-          }>,
-        ) => {
-          if (payload.eventType === "INSERT") {
-            const newBookmark = payload.new as Bookmark;
-            setBookmarks((prev) => [newBookmark, ...prev]);
-          } else if (payload.eventType === "DELETE") {
-            setBookmarks((prev) => prev.filter((b) => b.id !== payload.old.id));
+    if (!userId) return;
+
+    let channel: RealtimeChannel | null = null;
+
+    const startConnection = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        console.log("No session found yet, retrying...");
+        return;
+      }
+
+      channel = supabase
+        .channel("bookmarks-live")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "bookmarks",
+            filter: `user_id=eq.${userId}`,
+          },
+          (
+            payload: RealtimePostgresChangesPayload<{
+              id: string;
+
+              title: string;
+
+              url: string;
+
+              user_id: string;
+            }>,
+          ) => {
+            if (payload.eventType === "INSERT") {
+              setBookmarks((prev) => [payload.new as Bookmark, ...prev]);
+            } else if (payload.eventType === "DELETE") {
+              setBookmarks((prev) =>
+                prev.filter((b) => b.id !== payload.old.id),
+              );
+            }
+          },
+        )
+        .subscribe(async (status: REALTIME_SUBSCRIBE_STATES) => {
+          if (status === "SUBSCRIBED") {
           }
-        },
-      )
-      .subscribe(async (status: REALTIME_SUBSCRIBE_STATES) => {
-        if (status === "SUBSCRIBED") {
-          const { data } = await supabase
-            .from("bookmarks")
-            .select("*")
-            .order("inserted_at", { ascending: false });
-          if (data) setBookmarks(data);
-        }
-      });
+        });
+    };
+
+    startConnection();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [supabase, userId]);
 
