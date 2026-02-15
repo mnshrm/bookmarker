@@ -9,6 +9,8 @@ A simple web app to store and manage your bookmarks
 1. Next js
 2. Supabase
 3. Vercel
+4. Typescript
+5. Tailwind CSS
 
 ## Installation
 
@@ -66,25 +68,29 @@ This project uses NextJS's app router, each folder inside app folder represents 
 
 ## Salient Features
 
-1. Realtime updates using supabase realtime, it allows realtime updates across different active sessions whenever new bookmarks are added or removed.
-2. Row level security in database which ensures, that only authenticated users can access their own records, no one elses.
+1. Realtime updates across different active sessions whenever new bookmarks are added or removed.
+2. User privacy at its core, no other user can see your bookmarks.
 3. Works across multiple form factors (laptop, mobile, tablet).
 
 ## How I Built This Project
 
 1. I used Gemini, to give a roadmap on how I could go about making this project, and integrating all the technologies.
 2. After having a roadmap, I went on to NextJS and supabase docs to understand the required features I need to implement, for any part which I found hard to grasp, I utilized youtube videos and gemini to understand that.
-3. After having a clear picture, I set up my next js project, and defined 3 pages, landing, login and dashboard page. Along with these pages I defined 2 components which would be used on dashboard page, bookmarkList and bookmarkForm components to show and add a new item functionality respectively.
+3. After having a clear picture, I set up my next js project, and defined 3 pages, landing, login and dashboard page. Along with these pages I defined 2 components which would be used on dashboard page, bookmarkList and bookmarkForm components to show and add new item functionality respectively.
 4. Given project's requirements, I created a simple db table bookmark in supabase with SQL editor with a foreign key to auth schema's user table.
-5. To implement google Oauth, I created GCP oAuth client id and client secret using GCP console and configured supabase for third party authentication provider.
-6. Created supabase server client and supabase browser client functions, which will be utilized on pages.tsx files for our routes, for various supabase tasks, such as updating DB, subscribing to DB changes, checking if user is logged in or not.
+5. To implement google Oauth, I created GCP oAuth client id and client secret using GCP console and configured supabase for google oAuth.
+6. Created supabase server client and supabase browser client, which are utilized in pages.tsx files in our routes, for supabase tasks, such as updating DB, subscribing to DB changes, checking if user is logged in or not.
 7. Finally used client to create logic for user sign in, db update, realtime subscription.
 
 After completing all this and styling the app, I had a functional web app ready for deployement
 
 ## What Problems I Faced?
 
-1. Since, It was the first time for me using supabase for auth, there was a small learning curve to understanding what supabase was and how could I use it for my project, here I used supabase documentation and Gemini to help me understand realtime and authentication features, Gemini helped me how to set it up and gave me code snippets as well for the same.
-2. The hardest problem I faced was that when we added a bookmark on mobile device it was displayed on laptop but not on mobile, the issue was that on mobile, the browser was connecting to the WebSocket as an anonymous user before the authentication session had fully loaded, as a result our user was subscribed as a guest user to supabase, and according to RLS, guest users should not recieve any updates, I solved this issue, by forcing the app to wait for a valid session token before subscribing.
-3. While testing realtime updates for database, I noticed that insertion operation updates were correctly being received across tabs, but it wasn't the same for deletion, after researching a bit I understood that I had to change the replica identity for my DB, basically to store the entire information about the deleted row in logs, so that supabase could use this information to send the deleted row to active user sessions, which could then be used in removing the row from UI
-4. There was also an issue of styling, since I use either CSS modules or MUI, using tailwind was new to me, given the time constraint I preferred using CoPilot to style this app according to simple white-blue theme, CoPilot did the job in matter of minutes and after tweaking the styling my project was ready aesthetically.
+1. Since this was my first time using Supabase, I had a bit of a learning curve. I used the documentation and Gemini to understand how authentication and real-time features work. Gemini provided initial setup along with some code snippets of features I wished to implement.
+2. I also had to adapt to Tailwind CSS, as I usually work with CSS Modules or MUI. Because I was on a tight schedule, I used Copilot to quickly build a basic white-and-blue theme. After some quick manual tweaks, the app looked and behaved as I wanted.
+3. The hardest problem I faced was that when we added a bookmark on mobile device it was displayed on laptop but not on mobile, the issue was that on mobile, the browser was connecting to the WebSocket as an anonymous user before the authentication session had fully loaded, as a result our user was subscribed as an anon user to supabase, and according to RLS, anon users should not recieve any updates, I solved this issue, by forcing the app to wait for a valid session token before subscribing.
+4. While testing realtime updates for database, I noticed that insertion operation updates were correctly being received across tabs, but it wasn't the same for deletion, after researching a bit I understood that I had to change the replica identity for my DB, basically to store the entire information about the deleted row in logs, so that supabase could use this information to send the deleted row to active user sessions, which could then be used in removing the row from UI.
+
+## AI tools used and their purpose
+1. Gemini 
+2. Copilot
