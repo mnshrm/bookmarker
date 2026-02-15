@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import {
+  RealtimePostgresChangesPayload,
+  REALTIME_SUBSCRIBE_STATES,
+} from "@supabase/supabase-js";
 
 type Bookmark = {
   id: string;
@@ -21,6 +25,7 @@ export default function BookmarkList({
   const supabase = createClient();
 
   useEffect(() => {
+    console.log("here");
     const channel = supabase
       .channel("schema-db-changes")
       .on(
@@ -31,7 +36,14 @@ export default function BookmarkList({
           table: "bookmarks",
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
+        (
+          payload: RealtimePostgresChangesPayload<{
+            id: string;
+            title: string;
+            url: string;
+            user_id: string;
+          }>,
+        ) => {
           if (payload.eventType === "INSERT") {
             const newBookmark = payload.new as Bookmark;
             setBookmarks((prev) => [newBookmark, ...prev]);
@@ -40,12 +52,12 @@ export default function BookmarkList({
           }
         },
       )
-      .subscribe(async (status) => {
+      .subscribe(async (status: REALTIME_SUBSCRIBE_STATES) => {
         if (status === "SUBSCRIBED") {
           const { data } = await supabase
             .from("bookmarks")
             .select("*")
-            .order("created_at", { ascending: false });
+            .order("inserted_at", { ascending: false });
           if (data) setBookmarks(data);
         }
       });
@@ -122,7 +134,7 @@ export default function BookmarkList({
 
             <button
               onClick={() => deleteBookmark(bookmark.id)}
-              className="flex-shrink-0 ml-3 p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+              className="flex-shrink-0 ml-3 p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all "
               aria-label="Delete bookmark"
               title="Delete"
             >
