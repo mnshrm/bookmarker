@@ -44,13 +44,11 @@ A simple web app to store and manage your bookmarks
 4. **Configure Supabase**
    - Create a new table called `bookmark` with this schema:
      ```sql
-     CREATE TABLE bookmark (
-       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       user_id UUID NOT NULL REFERENCES auth.users(id),
-       url TEXT NOT NULL,
-       title TEXT,
-       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-     );
+        id uuid default gen_random_uuid() primary key,
+        user_id uuid references auth.users(id) on delete cascade not null,
+        url text not null,
+        title text not null,
+        inserted_at timestamp with time zone default timezone('utc'::text, now()) not null
      ```
    - Enable Row Level Security (RLS) on the bookmark table
    - Add RLS policy to restrict users to their own records
