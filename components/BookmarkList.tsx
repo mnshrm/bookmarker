@@ -32,7 +32,6 @@ export default function BookmarkList({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log("Change received!", payload);
           if (payload.eventType === "INSERT") {
             const newBookmark = payload.new as Bookmark;
             setBookmarks((prev) => [newBookmark, ...prev]);
