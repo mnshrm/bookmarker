@@ -90,7 +90,3 @@ After completing all this and styling the app, I had a functional web app ready 
 2. I also had to adapt to Tailwind CSS, as I usually work with CSS Modules or MUI. Because I was on a tight schedule, I used Copilot to quickly build a basic white-and-blue theme. After some quick manual tweaks, the app looked and behaved as I wanted.
 3. The hardest problem I faced was that when we added a bookmark on mobile device it was displayed on laptop but not on mobile, the issue was that on mobile, the browser was connecting to the WebSocket as an anonymous user before the authentication session had fully loaded, as a result our user was subscribed as an anon user to supabase, and according to RLS, anon users should not recieve any updates, I solved this issue, by forcing the app to wait for a valid session token before subscribing.
 4. While testing realtime updates for database, I noticed that insertion operation updates were correctly being received across tabs, but it wasn't the same for deletion, after researching a bit I understood that I had to change the replica identity for my DB, basically to store the entire information about the deleted row in logs, so that supabase could use this information to send the deleted row to active user sessions, which could then be used in removing the row from UI.
-
-## AI tools used and their purpose
-1. Gemini 
-2. Copilot
